@@ -1,5 +1,5 @@
 Crystal - The smartest Roblox script.
 ===============
 ```lua
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/Loader.lua", true))()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/Loader.luau", true))()
 ```
