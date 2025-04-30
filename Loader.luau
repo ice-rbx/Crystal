@@ -1,6 +1,6 @@
 repeat wait() until game:IsLoaded()
 
-local repo = "https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/games/"
+local repo = "https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/Games/"
 
 local success, result = pcall(function()
   return game:HttpGet(repo .. game.PlaceId .. ".luau", true), "Crystal")()
