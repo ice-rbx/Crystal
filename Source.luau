@@ -25,6 +25,8 @@ end
 local Players = game:GetService("Players")
 local tweenService = game:GetService("TweenService")
 local httpService = game:GetService("HttpService")
+local inputService = game:GetService("UserInputService")
+local guiService = game:GetService("GuiService")
 local teleportService = game:GetService("TeleportService")
 local marketplaceService = game:GetService("MarketplaceService")
 
@@ -58,12 +60,12 @@ Crystal.Parent = (function()
 end)()
 
 local container = Crystal.Shadow.Window
+
+
 -- Switch tabs
 
-local function tween(obj, props)
-	local t = tweenService:Create(obj, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
-	t:Play()
-	return t
+local function tween(obj, props, info)
+	return tweenService:Create(obj, info or TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props):Play()
 end
 
 local function toMainPage(page)
