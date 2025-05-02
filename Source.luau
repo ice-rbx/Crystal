@@ -56,10 +56,8 @@ Crystal.Parent = (function()
 end)()
 
 -- Switch tabs
-local tweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
-
 local function tween(obj, props)
-	local t = tweenService:Create(obj, tweenInfo, props)
+	local t = tweenService:Create(obj, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
 	t:Play()
 	return t
 end
