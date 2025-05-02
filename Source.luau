@@ -10,10 +10,10 @@ local delfile = delfile or function(file)
 end
 
 -- downloadfile
-local function downloadFile(path, content)
+local function downloadFile(path, content, customAsset)
 	path = "Crystal/"..path
 	if not isfile(path) then writefile(path, content) end
-	return readfile(path)
+	return customAsset and path or readfile(path)
 end
 
 -- Init folders
@@ -29,9 +29,8 @@ local httpService = game:GetService("HttpService")
 -- Variables
 local localPlayer = Players.LocalPlayer
 
--- Init interface
-local Crystal = getcustomasset(downloadFile("Interface.rbxm", game:GetObjects("rbxassetid://135771270894798")))[1]
-
+-- Init interface (CRASHES ON SWIFT!!!)
+local Crystal = game:GetObjects(getcustomasset(downloadFile("Interface.rbxm", game:HttpGet("https://ice-rbx.github.io/Crystal.rbxm", true), true)))[1]
 Crystal.Parent = (function()
 	if protect_gui then protect_gui(Crystal) end
 
@@ -95,8 +94,6 @@ playerInfo.UserName.Text = localPlayer.Name
 playerInfo.Avatar.Image = "https://www.roblox.com/headshot-thumbnail/image?userId="..localPlayer.UserId.."&width=420&height=420&format=png"
 
 -- Session info
-local latencyLabel = playerInfo.Latency.Amount
-local sessionLabel = playerInfo.SessionTime.Amount
 
 -- https://github.com/SiriusSoftwareLtd/Sirius/blob/request/source.lua#L2360-L2364
 local function format(n) return string.format("%02i", n) end
@@ -110,8 +107,8 @@ local function toHMS(sec)
 end
 
 while task.wait(1) do
-	latencyLabel.Text = math.floor(math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700)).."ms"
-	sessionLabel.Text = toHMS(time())
+	playerInfo.Latency.Amount.Text = math.floor(math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700)).."ms"
+	playerInfo.SessionTime.Amount.Text = toHMS(time())
 end
 
 -- Join discord
