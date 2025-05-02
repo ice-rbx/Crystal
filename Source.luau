@@ -10,10 +10,10 @@ local delfile = delfile or function(file)
 end
 
 -- downloadfile
-local function downloadFile(path, content, customAsset)
+local function downloadFile(path, content, returnPath)
 	path = "Crystal/"..path
 	if not isfile(path) then writefile(path, content) end
-	return customAsset and path or readfile(path)
+	return returnPath and path or readfile(path)
 end
 
 -- Init folders
