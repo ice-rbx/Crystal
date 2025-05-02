@@ -25,8 +25,6 @@ end
 local Players = game:GetService("Players")
 local tweenService = game:GetService("TweenService")
 local httpService = game:GetService("HttpService")
-local inputService = game:GetService("UserInputService")
-local guiService = game:GetService("GuiService")
 local teleportService = game:GetService("TeleportService")
 local marketplaceService = game:GetService("MarketplaceService")
 
