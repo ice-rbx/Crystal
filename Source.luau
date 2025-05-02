@@ -10,10 +10,10 @@ local delfile = delfile or function(file)
 end
 
 -- downloadfile
-local function downloadFile(path, content, returnPath)
+local function downloadFile(path, content, customAsset)
 	path = "Crystal/"..path
 	if not isfile(path) then writefile(path, content) end
-	return returnPath and path or readfile(path)
+	return customAsset and path or readfile(path)
 end
 
 -- Init folders
@@ -29,8 +29,8 @@ local httpService = game:GetService("HttpService")
 -- Variables
 local localPlayer = Players.LocalPlayer
 
--- Init interface (CRASHES ON SWIFT!!!)
-local Crystal = game:GetObjects(getcustomasset(downloadFile("Interface.rbxm", game:HttpGet("https://ice-rbx.github.io/Crystal.rbxm", true), true)))[1]
+-- Init interface
+local Crystal = game:GetObjects("rbxassetid://135771270894798")[1]
 Crystal.Parent = (function()
 	if protect_gui then protect_gui(Crystal) end
 
@@ -55,24 +55,27 @@ Crystal.Parent = (function()
 	return nil
 end)()
 
+local container = Crystal.Shadow.Window
 -- Switch tabs
+local tweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
+
 local function tween(obj, props)
-	local t = tweenService:Create(obj, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
+	local t = tweenService:Create(obj, tweenInfo, props)
 	t:Play()
 	return t
 end
 
 local function toMainPage(page)
-	tween(Crystal.Main, {Position = UDim2.new()})
+	tween(container.Main, {Position = UDim2.new()})
 	tween(page, {Position = UDim2.fromScale(1, 0)})
 end
 
-for _, tab in pairs(Crystal.Main.Tabs:GetChildren()) do
+for _, tab in pairs(container.Main.Tabs:GetChildren()) do
 	if tab:IsA("TextButton") then
-		local tabPage = Crystal.TabPages:FindFirstChild(tab.Name)
+		local tabPage = container.TabPages:FindFirstChild(tab.Name)
 		if tabPage then
 			tab.MouseButton1Click:Connect(function()
-				tween(Crystal.Main, {Position = UDim2.fromScale(-1, 0)})
+				tween(container.Main, {Position = UDim2.fromScale(-1, 0)})
 				tween(tabPage, {Position = UDim2.new()})
 			end)
 			tabPage.Title.Back.MouseButton1Click:Connect(function()
@@ -83,7 +86,7 @@ for _, tab in pairs(Crystal.Main.Tabs:GetChildren()) do
 end
 
 -- Home page
-local homePage =  Crystal.TabPages.Home
+local homePage = container.TabPages.Home.Components
 
 local playerInfo = homePage.PlayerInfo
 
@@ -104,26 +107,28 @@ local function toHMS(sec)
 	return format(h)..":"..format(m)..":"..format(sec)
 end
 
-while task.wait(1) do
-	playerInfo.Latency.Amount.Text = math.floor(math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700)).."ms"
-	playerInfo.SessionTime.Amount.Text = toHMS(time())
-end
+task.spawn(function()
+	while task.wait(1) do
+		playerInfo.Latency.Amount.Text = math.floor(math.clamp(game:GetService("Stats").Network.ServerStatsItem["Data Ping"]:GetValue(), 10, 700)).."ms"
+		playerInfo.SessionTime.Amount.Text = toHMS(time())
+	end
+end)
 
 -- Join discord
 local request = request or http_request or (http and http.request)
 
 homePage.DiscordInvite.MouseButton1Click:Connect(function()
 	request({
-		Url = "http://127.0.0.1:6463/rpc?v=1",
-		Method = "POST",
-		Headers = {
-			["Content-Type"] = "application/json",
-			["Origin"] = "https://discord.com"
-		},
-		Body = httpService:JSONENcode({
-			cmd = "INVITE_BROWSER",
-			args = {code = "discord.com/invite/9rruBeaD8y"},
-			nonce = httpService:GenerateGUID(false)
-		})
+			Url = "http://127.0.0.1:6463/rpc?v=1",
+			Method = "POST",
+			Headers = {
+				["Content-Type"] = "application/json",
+				["Origin"] = "https://discord.com"
+			},
+			Body = httpService:JSONEncode({
+				cmd = "INVITE_BROWSER",
+				args = {code = "9rruBeaD8y"},
+				nonce = httpService:GenerateGUID(false)
+			})
 	})
 end)
