@@ -25,6 +25,7 @@ end
 local Players = game:GetService("Players")
 local tweenService = game:GetService("TweenService")
 local httpService = game:GetService("HttpService")
+local teleportService = game:GetService("TeleportService")
 local marketplaceService = game:GetService("MarketplaceService")
 
 -- Variables
@@ -58,10 +59,9 @@ end)()
 
 local container = Crystal.Shadow.Window
 -- Switch tabs
-local tweenInfo = TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out)
 
 local function tween(obj, props)
-	local t = tweenService:Create(obj, tweenInfo, props)
+	local t = tweenService:Create(obj, TweenInfo.new(0.45, Enum.EasingStyle.Quint, Enum.EasingDirection.Out), props)
 	t:Play()
 	return t
 end
@@ -83,6 +83,44 @@ for _, tab in pairs(container.Main.Tabs:GetChildren()) do
 				toMainPage(tabPage)
 			end)
 		end
+	end
+end
+
+-- Button interact colors
+local originalColors = {}
+for _, button in pairs(container:GetDescendants()) do
+	if button:IsA("TextButton") then
+		originalColors[button] = button.BackgroundColor3
+
+		local function changeColor(btn, amount)
+			if type(amount) == "number" then
+				local color = btn.BackgroundColor3
+				local newColor = Color3.new(
+					math.clamp(color.R + amount / 255, 0, 1),
+					math.clamp(color.G + amount / 255, 0, 1),
+					math.clamp(color.B + amount / 255, 0, 1)
+				)
+				tween(button, {BackgroundColor3 = newColor})
+			else
+				tween(button, {BackgroundColor3 = originalColors[btn]})
+			end
+	    	end
+
+	    button.MouseEnter:Connect(function()
+		changeColor(button, 10)
+	    end)
+
+	    button.MouseLeave:Connect(function()
+		changeColor(button, true)
+	    end)
+
+	    button.MouseButton1Down:Connect(function()
+		changeColor(button, 20)
+	    end)
+
+	    button.MouseButton1Up:Connect(function()
+		changeColor(button, true)
+	    end)
 	end
 end
 
@@ -127,6 +165,38 @@ local function updatePlayersText() gameInfo.Players.Amount.Text = #Players:GetPl
 updatePlayersText()
 Players.PlayerAdded:Connect(updatePlayersText)
 Players.PlayerRemoving:Connect(updatePlayersText)
+
+-- Rejoin (https://github.com/SiriusSoftwareLtd/Sirius/blob/request/source.lua#L2144-L2153)
+gameInfo.Rejoin.MouseButton1Click:Connect(function()
+	pcall(function() queueonteleport(game:HttpGet("https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/Source.luau", true)) end)
+
+	if #Players:GetPlayers() <= 1 then
+		teleportService:Teleport(game.PlaceId, localPlayer)
+	else
+		teleportService:TeleportToPlaceInstance(game.PlaceId, game.JobId, localPlayer)
+	end
+end)
+
+-- Serverhop (https://github.com/SiriusSoftwareLtd/Sirius/blob/request/source.lua#L2155-L2176) sorry, this script is heavily pasted
+gameInfo.Serverhop.MouseButton1Click:Connect(function()
+	local highestPlayers = 0
+	local servers = {}
+
+	for _, server in pairs(httpService:JSONDecode(game:HttpGet("https://games.roblox.com/v1/games/"..game.PlaceId.."/servers/Public?sortOrder=Asc&limit=100")).data) do
+		if type(server) == "table" and server.maxPlayers > server.playing and server.id ~= game.JobId then
+			if server.playing > highestPlayers then
+				highestPlayers = server.playing
+				servers[1] = server.id
+			end
+		end
+	end
+
+	if #servers > 0 then
+		task.wait(0.3)
+		pcall(function() queueonteleport(game:HttpGet("https://raw.githubusercontent.com/ice-rbx/Crystal/refs/heads/main/Source.luau", true)) end)
+		teleportService:TeleportToPlaceInstance(game.PlaceId, servers[1])
+	end
+end)
 
 -- Join discord
 local request = request or http_request or (http and http.request)
