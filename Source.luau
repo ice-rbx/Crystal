@@ -25,6 +25,7 @@ end
 local Players = game:GetService("Players")
 local tweenService = game:GetService("TweenService")
 local httpService = game:GetService("HttpService")
+local marketplaceService = game:GetService("MarketplaceService")
 
 -- Variables
 local localPlayer = Players.LocalPlayer
@@ -113,6 +114,19 @@ task.spawn(function()
 		playerInfo.SessionTime.Amount.Text = toHMS(time())
 	end
 end)
+
+-- Server info
+local gameInfo = homePage.GameInfo
+local actualGameInfo = marketplaceService:GetProductInfo(game.PlaceId, Enum.InfoType.Asset)
+
+gameInfo.Icon.Image = "rbxassetid://"..actualGameInfo.IconImageAssetId
+gameInfo.GameName.Text = actualGameInfo.Name
+gameInfo.GameOwner.Text = "by " .. actualGameInfo.Creator.Name
+
+local function updatePlayersText() gameInfo.Players.Amount.Text = #Players:GetPlayers().."/"..Players.MaxPlayers end
+updatePlayersText()
+Players.PlayerAdded:Connect(updatePlayersText)
+Players.PlayerRemoving:Connect(updatePlayersText)
 
 -- Join discord
 local request = request or http_request or (http and http.request)
